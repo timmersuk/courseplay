@@ -82,6 +82,8 @@ function courseplay:start_record(vehicle)
 	courseplay:setRecordingIsPaused(vehicle, false);
 	vehicle:setIsCourseplayDriving(false);
 	vehicle.cp.loadedCourses = {}
+	vehicle.cp.coursesStartWps = {}
+	vehicle.cp.cornerRadiuses = {};
 	courseplay:setWaypointIndex(vehicle, 1);
 	vehicle.cp.numWaitPoints = 0;
 	vehicle.cp.numCrossingPoints = 0;
@@ -249,6 +251,8 @@ function courseplay:clearCurrentLoadedCourse(vehicle)
 		courseplay:unregisterFromCombine(vehicle, vehicle.cp.activeCombine)
 	end
 	vehicle.cp.loadedCourses = {}
+	vehicle.cp.coursesStartWps = {}
+	vehicle.cp.cornerRadiuses = {};
 	vehicle:setCpVar('currentCourseName',nil,courseplay.isClient)
 	courseplay:setModeState(vehicle, 1);
 	if vehicle.cp.mode == courseplay.MODE_COMBI or vehicle.cp.mode == courseplay.MODE_OVERLOADER then

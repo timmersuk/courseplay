@@ -31,6 +31,8 @@
 		<text name="UNKNOWN" 											 text="unknown" />
 		<text name="COURSEPLAY_DISTANCE" 								 text="distance" />
 		<text name="COURSEPLAY_WAITING_TIME" 							 text="Waiting time" />
+		<text name="COURSEPLAY_ENHANCED_MERGE_RADIUS" 					 text="Course merge turn radius" />
+		<text name="COURSEPLAY_ENHANCED_MERGE_RADIUS_VALUE" 			 text="%d meter(s)" />
 		<text name="COURSEPLAY_MINUTES" 								 text="%d min" />
 		<text name="COURSEPLAY_SECONDS" 								 text="%d sec" />
 		<text name="COURSEPLAY_COURSE_NAME" 							 text="Course name:" />

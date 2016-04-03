@@ -39,6 +39,7 @@ function CpManager:loadMap(name)
 	self:setupIngameMap();
 	courseplay.courses:setup(); -- NOTE: this call is only to set up batchWriteSize, without loading anything
 	self:setup2dCourseData(false); -- NOTE: this call is only to initiate the position and opacity
+	self.useEnhancedMerge = true;
 
 	-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	-- LOAD SETTINGS FROM COURSEPLAY.XML / SAVE DEFAULT SETTINGS IF NOT EXISTING
@@ -1017,6 +1018,14 @@ function CpManager:loadOrSetXmlSettings()
 			setXMLFloat(cpFile, key .. '#opacity', self.course2dPdaMapOpacity);
 		end;
 
+		key = 'XML.enhancedMerge';
+		local useEnhancedMerge = getXMLBool(cpFile, key .. '#useEnhancedMerge');
+		if useEnhancedMerge ~= nil then
+			self.useEnhancedMerge = useEnhancedMerge;
+		else
+			setXMLBool(cpFile, key .. '#useEnhancedMerge', self.useEnhancedMerge);
+		end;
+		
 		--------------------------------------------------
 		saveXMLFile(cpFile);
 		delete(cpFile);
@@ -1065,6 +1074,9 @@ function CpManager:createXmlSettings()
 	setXMLFloat(cpFile, key .. '#posY', self.course2dPlotPosY);
 	setXMLFloat(cpFile, key .. '#opacity', self.course2dPdaMapOpacity);
 
+	key = 'XML.enhancedMerge';
+	setXMLBool(cpFile, key .. '#useEnhancedMerge', self.useEnhancedMerge);
+	
 	--------------------------------------------------
 	saveXMLFile(cpFile);
 	delete(cpFile);

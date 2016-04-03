@@ -961,6 +961,10 @@ function courseplay.hud:loadPage(vehicle, page)
 			vehicle.cp.hud.content.pages[6][6][2].text = CpManager.ingameMapIconShowText and courseplay:loc('COURSEPLAY_ACTIVATED') or courseplay:loc('COURSEPLAY_DEACTIVATED');
 		end;
 
+		-- Enahnced Merge Radius
+		vehicle.cp.hud.content.pages[6][7][1].text = courseplay:loc('COURSEPLAY_ENHANCED_MERGE_RADIUS');
+		vehicle.cp.hud.content.pages[6][7][2].text = string.format(courseplay:loc('COURSEPLAY_ENHANCED_MERGE_RADIUS_VALUE') , vehicle.cp.enhancedMergeRadius);
+
 		-- Debug channels
 		vehicle.cp.hud.content.pages[6][8][1].text = courseplay:loc('COURSEPLAY_DEBUG_CHANNELS');
 
@@ -1503,6 +1507,11 @@ function courseplay.hud:setupVehicleHud(vehicle)
 	if CpManager.ingameMapIconActive and CpManager.ingameMapIconShowTextLoaded then
 		courseplay.button:new(vehicle, pg, nil, 'toggleIngameMapIconShowText', nil, self.contentMinX, self.linesPosY[6], self.contentMaxWidth, self.lineHeight, 6, nil, true);
 	end;
+
+	-- enhanced merge radius
+	courseplay.button:new(vehicle, pg, { 'iconSprite.png', 'navMinus' }, 'changeEnhancedMergeRadius', -1, self.buttonPosX[2], self.linesButtonPosY[7], wSmall, hSmall, 7, -5, false);
+	courseplay.button:new(vehicle, pg, { 'iconSprite.png', 'navPlus' },  'changeEnhancedMergeRadius',  1, self.buttonPosX[1], self.linesButtonPosY[7], wSmall, hSmall, 7,  5, false);
+	courseplay.button:new(vehicle, pg, nil, 'changeEnhancedMergeRadius', 1, mouseWheelArea.x, self.linesButtonPosY[7], mouseWheelArea.w, mouseWheelArea.h, 7, 5, true, true);
 
 	-- debug channels
 	vehicle.cp.hud.debugChannelButtons = {};

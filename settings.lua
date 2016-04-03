@@ -392,6 +392,10 @@ function courseplay:changeWaitTime(vehicle, changeBy)
 	vehicle.cp.waitTime = math.max(0, vehicle.cp.waitTime + changeBy);
 end;
 
+function courseplay:changeEnhancedMergeRadius(vehicle, changeBy)
+	vehicle.cp.enhancedMergeRadius = Utils.clamp(vehicle.cp.enhancedMergeRadius + changeBy, 1, 100);
+end;
+
 function courseplay:getCanHaveWaitTime(vehicle)
 	return vehicle.cp.mode == 1 or vehicle.cp.mode == 2 or vehicle.cp.mode == 5 or (vehicle.cp.mode == 6 and not vehicle.cp.hasBaleLoader) or vehicle.cp.mode == 8;
 end;
@@ -553,6 +557,9 @@ function courseplay:copyCourse(vehicle)
 		vehicle.Waypoints = src.Waypoints;
 		vehicle:setCpVar('currentCourseName',src.cp.currentCourseName,courseplay.isClient);
 		vehicle.cp.loadedCourses = src.cp.loadedCourses;
+		vehicle.cp.coursesStartWps = src.cp.coursesStartWps;
+		vehicle.cp.cornerRadiuses = src.cp.cornerRadiuses;
+
 		vehicle.cp.numCourses = src.cp.numCourses;
 		courseplay:setWaypointIndex(vehicle, 1);
 		vehicle.cp.numWaypoints = #(vehicle.Waypoints);
@@ -1083,8 +1090,12 @@ function courseplay:reloadCoursesFromXML(vehicle)
 		courseplay:debug("g_currentMission.cp_courses = courseplay.courses:loadCoursesAndFoldersFromXml()", 8);
 		if not vehicle:getIsCourseplayDriving() then
 			local loadedCoursesBackup = vehicle.cp.loadedCourses;
+			local loadedCoursesStartWps = vehicle.cp.coursesStartWps;
+			local loadedCornerRadiuses = vehicle.cp.cornerRadiuses;
 			courseplay:clearCurrentLoadedCourse(vehicle);
 			vehicle.cp.loadedCourses = loadedCoursesBackup;
+			vehicle.cp.coursesStartWps = loadedCoursesStartWps;
+			vehicle.cp.cornerRadiuses = loadedCornerRadiuses;
 			courseplay:reloadCourses(vehicle, true);
 		end;
 		courseplay.settings.update_folders()

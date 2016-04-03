@@ -154,7 +154,9 @@ function courseplay:load(xmlFile)
 	self.cp.currentCourseId = 0;
 	self.cp.lastMergedWP = 0;
 
-	self.cp.loadedCourses = {}
+	self.cp.loadedCourses = {};
+	self.cp.coursesStartWps = {};
+	self.cp.cornerRadiuses = {};
 
 	-- forced waypoints
 	self.cp.curTarget = {};
@@ -176,6 +178,8 @@ function courseplay:load(xmlFile)
 		minStreet = 3;
 		max = self.cruiseControl.maxSpeed or 60;
 	};
+	
+	self.cp.enhancedMergeRadius = 5;
 
 	self.cp.toolsDirty = false
 	self.cp.orgRpm = nil;
@@ -1124,6 +1128,12 @@ function courseplay:readStream(streamId, connection)
 	local courses = streamDebugReadString(streamId) -- 60.
 	if courses ~= nil then
 		self.cp.loadedCourses = Utils.splitString(",", courses);
+		self.cp.coursesStartWps = {};
+		self.cp.cornerRadiuses = {};
+		for i = 1, #self.cp.loadedCourses do
+			table.insert(self.cp.coursesStartWps, 1);
+			table.insert(self.cp.cornerRadiuses, 5);
+		end
 		courseplay:reloadCourses(self, true)
 	end
 
@@ -1264,6 +1274,22 @@ function courseplay:loadFromAttributesAndNodes(xmlFile, key, resetVehicles)
 		self.cp.waitTime 		  = Utils.getNoNil(   getXMLInt(xmlFile, curKey .. '#waitTime'),		 0);
 		local courses 			  = Utils.getNoNil(getXMLString(xmlFile, curKey .. '#courses'),			 '');
 		self.cp.loadedCourses = Utils.splitString(",", courses);
+		local coursesStartWps	  = getXMLString(xmlFile, curKey .. '#coursesStartWps');
+		if coursesStartWps ~= nil then
+			self.cp.coursesStartWps = Utils.splitString(",", coursesStartWps);
+		else
+			for i = 1, #self.cp.loadedCourses do
+				table.insert(self.cp.coursesStartWps, 1);
+			end
+		end
+		local cornerRadiuses	  = getXMLString(xmlFile, curKey .. '#cornerRadiuses');
+		if cornerRadiuses ~= nil then
+			self.cp.cornerRadiuses = Utils.splitString(",", cornerRadiuses);
+		else
+			for i = 1, #self.cp.loadedCourses do
+				table.insert(self.cp.cornerRadiuses, 5);
+			end
+		end
 		courseplay:reloadCourses(self, true);
 
 		local visualWaypointsStartEnd = getXMLBool(xmlFile, curKey .. '#visualWaypointsStartEnd');
@@ -1283,6 +1309,8 @@ function courseplay:loadFromAttributesAndNodes(xmlFile, key, resetVehicles)
 
 		self.cp.multiSiloSelectedFillType = Fillable.fillTypeNameToInt[Utils.getNoNil(getXMLString(xmlFile, curKey .. '#multiSiloSelectedFillType'), 'unknown')];
 		if self.cp.multiSiloSelectedFillType == nil then self.cp.multiSiloSelectedFillType = Fillable.FILLTYPE_UNKNOWN; end;
+
+		self.cp.enhancedMergeRadius = Utils.getNoNil(getXMLInt(xmlFile, curKey .. '#enhancedMergeRadius'), 5);
 
 		-- SPEEDS
 		curKey = key .. '.courseplay.speeds';
@@ -1408,7 +1436,7 @@ function courseplay:getSaveAttributesAndNodes(nodeIdent)
 
 
 	--NODES
-	local cpOpen = string.format('<courseplay aiMode=%q courses=%q openHudWithMouse=%q lights=%q visualWaypointsStartEnd=%q visualWaypointsAll=%q visualWaypointsCrossing=%q waitTime=%q multiSiloSelectedFillType=%q>', tostring(self.cp.mode), tostring(table.concat(self.cp.loadedCourses, ",")), tostring(self.cp.hud.openWithMouse), tostring(self.cp.warningLightsMode), tostring(self.cp.visualWaypointsStartEnd), tostring(self.cp.visualWaypointsAll), tostring(self.cp.visualWaypointsCrossing), tostring(self.cp.waitTime), Fillable.fillTypeIntToName[self.cp.multiSiloSelectedFillType]);
+	local cpOpen = string.format('<courseplay aiMode=%q courses=%q openHudWithMouse=%q lights=%q visualWaypointsStartEnd=%q visualWaypointsAll=%q visualWaypointsCrossing=%q waitTime=%q multiSiloSelectedFillType=%q enhancedMergeRadius=%q coursesStartWps=%q cornerRadiuses=%q>', tostring(self.cp.mode), tostring(table.concat(self.cp.loadedCourses, ",")), tostring(self.cp.hud.openWithMouse), tostring(self.cp.warningLightsMode), tostring(self.cp.visualWaypointsStartEnd), tostring(self.cp.visualWaypointsAll), tostring(self.cp.visualWaypointsCrossing), tostring(self.cp.waitTime), Fillable.fillTypeIntToName[self.cp.multiSiloSelectedFillType], tostring(self.cp.enhancedMergeRadius), tostring(table.concat(self.cp.coursesStartWps, ",")), tostring(table.concat(self.cp.cornerRadiuses, ",")));
 	local speeds = string.format('<speeds useRecordingSpeed=%q reverse="%d" turn="%d" field="%d" max="%d" />', tostring(self.cp.speeds.useRecordingSpeed), self.cp.speeds.reverse, self.cp.speeds.turn, self.cp.speeds.field, self.cp.speeds.street);
 	local combi = string.format('<combi tipperOffset="%.1f" combineOffset="%.1f" combineOffsetAutoMode=%q fillFollow="%d" fillDriveOn="%d" turnDiameter="%d" realisticDriving=%q />', self.cp.tipperOffset, self.cp.combineOffset, tostring(self.cp.combineOffsetAutoMode), self.cp.followAtFillLevel, self.cp.driveOnAtFillLevel, self.cp.turnDiameter, tostring(self.cp.realisticDriving));
 	local fieldWork = string.format('<fieldWork workWidth="%.1f" ridgeMarkersAutomatic=%q offsetData=%q abortWork="%d" refillUntilPct="%d" />', self.cp.workWidth, tostring(self.cp.ridgeMarkersAutomatic), offsetData, Utils.getNoNil(self.cp.abortWork, 0), self.cp.refillUntilPct);

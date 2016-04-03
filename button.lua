@@ -175,6 +175,9 @@ function courseplay.button:render()
 			elseif fn == 'changeDebugChannelSection' then
 				canScrollUp   = courseplay.debugChannelSection > 1;
 				canScrollDown = courseplay.debugChannelSection < courseplay.numDebugChannelSections;
+			elseif fn == 'changeEnhancedMergeRadius' then
+				canScrollUp   = vehicle.cp.enhancedMergeRadius < 100;
+				canScrollDown = vehicle.cp.enhancedMergeRadius > 1;
 			end;
 
 		elseif pg == courseplay.hud.PAGE_DRIVING_SETTINGS then
