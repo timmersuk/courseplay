@@ -499,16 +499,19 @@ function courseplay:drive(self, dt)
 	or isCrawlingToWait		
 	then
 		refSpeed = math.min(self.cp.speeds.turn,refSpeed);              -- we are on the field, go field speed
-		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", field")
 	elseif ((self.cp.mode == 2 or self.cp.mode == 3) and isAtStart) or (workSpeed ~= nil and workSpeed == 1) then
 		refSpeed = math.min(self.cp.speeds.field,refSpeed); 
-		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", slow")
+	elseif self.cp.speeds.useEnhancedSpeedControl then
+		refSpeed = courseplay:getEnhancedControlSpeed(self, dt)
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", enhanced");
 	else
 		local mode7onCourse = true
 		self.cp.speedDebugStreet = true
 		if self.cp.mode ~= 7 then
 			refSpeed = self.cp.speeds.street;
-			speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+			speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", not 7")
 		elseif self.cp.modeState == 5 then
 			mode7onCourse = false
 		end
@@ -516,13 +519,11 @@ function courseplay:drive(self, dt)
 			if not self.cp.speeds.useEnhancedSpeedControl then
 				if self.Waypoints[self.cp.waypointIndex].speed < self.cp.speeds.crawl then
 					refSpeed = courseplay:getAverageWpSpeed(self , 4)
-					speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+					speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", recordingspeed.crawl")
 				else
 					refSpeed = Utils.clamp(refSpeed, self.cp.speeds.crawl, self.Waypoints[self.cp.waypointIndex].speed); --normaly use speed from waypoint, but  maximum street speed
-					speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+					speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", recordingspeed")
 				end
-			else
-				refSpeed = courseplay:getEnhancedControlSpeed(self, dt)
 			end
 		end;		
 	end;
@@ -530,20 +531,20 @@ function courseplay:drive(self, dt)
 	
 	if self.cp.collidingVehicleId ~= nil then
 		refSpeed = courseplay:regulateTrafficSpeed(self, refSpeed, allowedToDrive);
-		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", colliding")
 	end
 	
 	if self.cp.currentTipTrigger ~= nil then
 		if self.cp.currentTipTrigger.bunkerSilo ~= nil then
 			refSpeed = Utils.getNoNil(self.cp.speeds.reverse, self.cp.speeds.crawl);
-			speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+			speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", bunker")
 		else
 			refSpeed = self.cp.speeds.turn;
-			speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+			speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", tiptrigger")
 		end;
 	elseif self.cp.isInFilltrigger then
 		refSpeed = self.cp.speeds.turn;
-		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", filltrigger")
 		self.cp.isInFilltrigger = false;
 	end;
 
@@ -557,7 +558,7 @@ function courseplay:drive(self, dt)
 	if self.Waypoints[self.cp.waypointIndex].rev then
 		lx,lz,fwd = courseplay:goReverse(self,lx,lz)
 		refSpeed = Utils.getNoNil(self.cp.speeds.reverse, self.cp.speeds.crawl)
-		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", reverse")
 	else
 		fwd = true
 	end
@@ -582,7 +583,7 @@ function courseplay:drive(self, dt)
 				lx = 0
 				lz = 1				
 				refSpeed = self.cp.speeds.crawl
-				speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+				speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", reversetopoint")
 			else
 				self.cp.reverseBackToPoint = nil;
 			end;
@@ -592,7 +593,7 @@ function courseplay:drive(self, dt)
 	end
 	if abs(lx) > 0.5 then
 		refSpeed = min(refSpeed, self.cp.speeds.turn)
-		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed))
+		speedDebugLine = ("drive("..tostring(debug.getinfo(1).currentline-1).."): refSpeed = "..tostring(refSpeed)..", lx>0.5")
 	end
 	
 	self.cp.speedDebugLine = speedDebugLine
