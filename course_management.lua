@@ -158,7 +158,7 @@ function courseplay:loadCourse(vehicle, id, useRealId, addCourseAtEnd, course1St
 			local turnWaypoints, course1wp, course2wp = courseplay:enhancedCourseMerge(course1, course2, course1StartWp, cornerRadius, 10)
 
 			-- there was no intersection of the course then just append the second course
-			if turnWaypoints == nil then
+			if turnWaypoints == nil or #turnWaypoints == 0 then
 				course1wp, course2wp = numCourse1, 1;
 
 				--find crossing points, merge at first pair where dist < 50
@@ -241,9 +241,24 @@ function courseplay:loadCourse(vehicle, id, useRealId, addCourseAtEnd, course1St
 			for i=1, course1wp do
 				table.insert(vehicle.Waypoints, course1[i]);
 			end;
-			if turnWaypoints ~= nil then
+			if turnWaypoints ~= nil and #turnWaypoints > 0 then
+				if course1wp > 0 then
+					local dirX, dirZ = courseplay.generation:getPointDirection(course1[course1wp], turnWaypoints[1]);
+
+					course1[course1wp].angle = Utils.getYRotationFromDirection(dirX, dirZ);
+				end
 				for turnWaypointIndex = 1, #turnWaypoints do
-					table.insert(vehicle.Waypoints, { cx = turnWaypoints[turnWaypointIndex].cx, cz = turnWaypoints[turnWaypointIndex].cz, angle = angle, wait = nil, rev = nil, crossing = nil, speed = speed, turn = nil, turnStart = nil, turnEnd = nil });
+					if turnWaypointIndex < #turnWaypoints then
+						local dirX, dirZ = courseplay.generation:getPointDirection(turnWaypoints[turnWaypointIndex], turnWaypoints[turnWaypointIndex+1]);
+
+						turnWaypoints[turnWaypointIndex].angle = Utils.getYRotationFromDirection(dirX, dirZ);
+					end
+					table.insert(vehicle.Waypoints, { cx = turnWaypoints[turnWaypointIndex].cx, cz = turnWaypoints[turnWaypointIndex].cz, angle = turnWaypoints[turnWaypointIndex].angle, wait = nil, rev = nil, crossing = nil, speed = speed, turn = nil, turnStart = nil, turnEnd = nil });
+				end
+				if course2wp > 0 then
+					local dirX, dirZ = courseplay.generation:getPointDirection(turnWaypoints[#turnWaypoints], course2[course2wp]);
+
+					turnWaypoints[#turnWaypoints].angle = Utils.getYRotationFromDirection(dirX, dirZ);
 				end
 			end
 			for i=course2wp, numCourse2 do
