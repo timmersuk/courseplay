@@ -747,7 +747,7 @@ end;
 function CpManager:setGlobalInfoText(vehicle, refIdx, forceRemove)
 	local git = self.globalInfoText;
 
-	--print(string.format('setGlobalInfoText(vehicle, %s, %s)', tostring(refIdx), tostring(forceRemove))); 
+	print(string.format('setGlobalInfoText(vehicle, %s, %s)', tostring(refIdx), tostring(forceRemove))); 
 	if forceRemove == true then
 		if g_server ~= nil then
 			CourseplayEvent.sendEvent(vehicle, "setMPGlobalInfoText", refIdx, false, forceRemove)

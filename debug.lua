@@ -13,6 +13,9 @@ function CpManager:setUpDebugChannels()
 	for channel=1, courseplay.numAvailableDebugChannels do
 		courseplay.debugChannels[channel] = false;
 	end;
+	
+	print('## Courseplay:setUpDebugChannels forcing channel 5 debug on');
+    courseplay.debugChannels[5] = true;
 
 	-- Debug channels legend:
 	courseplay.debugChannelsDesc = {
@@ -237,14 +240,14 @@ function courseplay.streamDebugRead(streamId, varType)
 end;
 
 stream_debug_counter = 0;
-function streamDebugWriteFloat32(streamId, value)
+function streamDebugWriteFloat32(streamId, value, desc)
 	value = Utils.getNoNil(value, 0.0)
 	stream_debug_counter = stream_debug_counter + 1
-	courseplay:debug(string.format("%d: writing float: %f",stream_debug_counter, value ),5)
+	courseplay:debug(string.format("%d: writing float[%s]: %f",stream_debug_counter, desc, value ),5)
 	streamWriteFloat32(streamId, value)
 end
 
-function streamDebugWriteBool(streamId, value)
+function streamDebugWriteBool(streamId, value, desc)
 	value = Utils.getNoNil(value, false)
 	if value == 1 then
 		value = true
@@ -253,51 +256,51 @@ function streamDebugWriteBool(streamId, value)
 	end
 
 	stream_debug_counter = stream_debug_counter + 1
-	courseplay:debug(string.format("%d: writing bool: %s",stream_debug_counter, tostring(value) ),5)	
+	courseplay:debug(string.format("%d: writing bool[%s]: %s",stream_debug_counter, desc, tostring(value) ),5)	
 	streamWriteBool(streamId, value)
 end
 
-function streamDebugWriteInt32(streamId, value)
+function streamDebugWriteInt32(streamId, value, desc)
 	value = Utils.getNoNil(value, 0)
 	stream_debug_counter = stream_debug_counter + 1
-	courseplay:debug(string.format("%d: writing int: %d",stream_debug_counter, value ),5)
+	courseplay:debug(string.format("%d: writing int[%s]: %d",stream_debug_counter, desc, value ),5)
 	streamWriteInt32(streamId, value)
 end
 
-function streamDebugWriteString(streamId, value)
+function streamDebugWriteString(streamId, value, desc)
 	value = Utils.getNoNil(value, "")
 	stream_debug_counter = stream_debug_counter + 1
-	courseplay:debug(string.format("%d: writing string: %s",stream_debug_counter, value ),5)
+	courseplay:debug(string.format("%d: writing string[%s]: %s",stream_debug_counter, desc, value ),5)
 	streamWriteString(streamId, value)
 end
 
 
-function streamDebugReadFloat32(streamId)
+function streamDebugReadFloat32(streamId, desc)
 	stream_debug_counter = stream_debug_counter + 1
 	local value = streamReadFloat32(streamId)
-	courseplay:debug(string.format("%d: reading float: %f",stream_debug_counter, value ),5)
+	courseplay:debug(string.format("%d: reading float[%s]: %f",stream_debug_counter, tostring(desc), value ),5)
 	return value
 end
 
 
-function streamDebugReadInt32(streamId)
+function streamDebugReadInt32(streamId, desc)
 	stream_debug_counter = stream_debug_counter + 1
 	local value = streamReadInt32(streamId)
-	courseplay:debug(string.format("%d: reading int: %d",stream_debug_counter, value ),5)
+	courseplay:debug(string.format("%d: reading int[%s]: %d",stream_debug_counter, tostring(desc), value ),5)
 	return value
 end
 
-function streamDebugReadBool(streamId)
+function streamDebugReadBool(streamId, desc)
 	stream_debug_counter = stream_debug_counter + 1
 	local value = streamReadBool(streamId)
-	courseplay:debug(string.format("%d: reading bool: %s",stream_debug_counter, tostring(value)),5)
+	courseplay:debug(string.format("%d: reading bool[%s]: %s",stream_debug_counter, tostring(desc), tostring(value)),5)
 	return value
 end
 
-function streamDebugReadString(streamId)
+function streamDebugReadString(streamId, desc)
 	stream_debug_counter = stream_debug_counter + 1
 	local value = streamReadString(streamId)
-	courseplay:debug(string.format("%d: reading string: %s",stream_debug_counter, value ),5)
+	courseplay:debug(string.format("%d: reading string[%s]: %s",stream_debug_counter, tostring(desc), value ),5)
 	return value
 end
 

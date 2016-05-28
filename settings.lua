@@ -1636,9 +1636,14 @@ function courseplay:setCpVar(varName, value, noEventSend)
 		local oldValue = self.cp[varName];
 		self.cp[varName] = value;		
 		if CpManager.isMP and not noEventSend then
-			--print(courseplay.utils:getFnCallPath(2))
-			courseplay:debug(string.format("setCpVar: %s: %s -> send Event",varName,tostring(value)), 5);
-			CourseplayEvent.sendEvent(self, "self.cp."..varName, value)
+			print(courseplay.utils:getFnCallPath(3));
+			
+			if (CoursePlayEvent == nil) then
+				courseplay:debug(string.format("setCpVar: %s: %s -> send Event - unable to send, CoursePlayEvent not initialised",varName,tostring(value)), 5);
+			else
+				courseplay:debug(string.format("setCpVar: %s: %s -> send Event",varName,tostring(value)), 5);
+				CourseplayEvent.sendEvent(self, "self.cp."..varName, value);
+			end
 		end
 		if varName == "isDriving" then
 			courseplay:debug("reload page 1", 5);

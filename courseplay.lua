@@ -95,7 +95,7 @@ local function initialize()
 
 		assert(fileExists(filePath), '\tCOURSEPLAY ERROR: could not load file ' .. filePath);
 		source(filePath);
-		--print('\t### Courseplay: ' .. filePath .. ' has been loaded');
+		print('\t### Courseplay: ' .. filePath .. ' has been loaded');
 		numFilesLoaded = numFilesLoaded + 1;
 	end;
 	

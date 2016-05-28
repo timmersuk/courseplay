@@ -31,7 +31,7 @@ function courseplay:cpOnTrafficCollisionTrigger(triggerId, otherId, onEnter, onL
 	local TriggerNumber = self.cp.trafficCollisionTriggerToTriggerIndex[triggerId];
 	-- print(('otherId=%d, getCollisionMask=%s, name=%q, className=%q'):format(otherId, tostring(getCollisionMask(otherId)), tostring(getName(otherId)), tostring(getClassName(otherId))));
 	if onEnter or onLeave then --TODO check whether it is required to ask for this 
-		if otherId == Player.rootNode then  --TODO check in Multiplayer --TODO (Jakob): g_currentMission.player.rootNode ?
+		if otherId == g_currentMission.player.rootNode then  --TODO check in Multiplayer --TODO (Jakob): g_currentMission.player.rootNode ?
 			if onEnter then
 				self.CPnumCollidingVehicles = self.CPnumCollidingVehicles + 1;
 			elseif onLeave then
